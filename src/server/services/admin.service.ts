@@ -1,5 +1,4 @@
 import { Command } from "@/decorators/command";
-import type { RPCInfo } from "@/types/rpc";
 import myRpc, { RPCHandler } from "@shared/rpc/rpc";
 import { Service } from "@shared/service/service";
 import { RandomInRange } from "@shared/random";
@@ -11,7 +10,16 @@ export class AdminService {
 		myRpc.callClient(player, "ui:menu:toggle", "admin");
 	}
 
-	@RPCHandler("admin:vehicle:repair")
+	@RPCHandler("server:admin:heal")
+	onPlayerHeal(info: RPCInfo) {
+		const player = info.player;
+		if (!player) return;
+
+		player.health = 100;
+		player.armour = 100;
+	}
+
+	@RPCHandler("server:admin:vehicle:repair")
 	onVehicleRepair(info: RPCInfo) {
 		const player = info.player;
 		if (!player.vehicle) {
@@ -49,7 +57,7 @@ export class AdminService {
 	async onVehicleSpawn(info: RPCInfo, modelName: string) {
 		const player = info.player;
 
-		const isValid = await myRpc.callClient(player, "vehicle:model:validate", modelName);
+		const isValid = await myRpc.callClient(player, "client:vehicle:model:validate", modelName);
 		if (!isValid) {
 			player.outputChatBox(`!{red} Vehicle ${modelName} not found`);
 			return;

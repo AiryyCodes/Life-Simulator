@@ -3,7 +3,7 @@ import { Service } from "@shared/service/service";
 
 @Service({ side: "client" })
 export class VehicleService {
-	@RPCHandler("vehicle:model:validate")
+	@RPCHandler("client:vehicle:model:validate")
 	onModelValidate(modelName: string): boolean {
 		const hash = mp.game.joaat(modelName);
 

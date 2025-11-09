@@ -2,7 +2,7 @@ import { EventHandler } from "@/decorators/event";
 import { Service } from "@shared/service/service";
 import rpc from "rage-rpc";
 import { UIService } from "./ui.service";
-import myRpc, { RPCHandler } from "@shared/rpc/rpc";
+import { RPCHandler } from "@shared/rpc/rpc";
 import type { PlayerInfo } from "@shared/types/player";
 import { VehicleInfo } from "@shared/types/vehicle";
 
@@ -17,39 +17,18 @@ export class AdminService {
 	}
 
 	@EventHandler("admin:menu:show")
-	onAdminMenuShow(player: PlayerMp) {
+	onAdminMenuShow(_player: PlayerMp) {
 		const browser = mp.browsers.at(0) || this.uiService.ui;
 		rpc.callBrowser(browser, "browser:page:show", "admin");
 	}
 
 	@EventHandler("admin:menu:hide")
-	onAdminMenuHide(player: PlayerMp) {
+	onAdminMenuHide(_player: PlayerMp) {
 		const browser = mp.browsers.at(0) || this.uiService.ui;
 		rpc.callBrowser(browser, "browser:page:close");
 	}
 
-	@RPCHandler("admin:heal")
-	onHeal() {
-		mp.players.local.setHealth(200);
-		mp.players.local.setArmour(100);
-
-		mp.gui.chat.push("An admin restored your health. Stay safe out there!");
-	}
-
-	@RPCHandler("admin:vehicle:repair")
-	onVehicleRepair() {
-		const player = mp.players.local;
-		if (!player.vehicle) return;
-
-		myRpc.callServer("admin:vehicle:repair");
-	}
-
-	@RPCHandler("client:admin:vehicle:spawn")
-	onVehicleSpawn(modelName: string) {
-		myRpc.callServer("server:admin:vehicle:spawn", modelName);
-	}
-
-	@RPCHandler("admin:player:get")
+	@RPCHandler("client:admin:player:get")
 	onGetPlayer(): PlayerInfo {
 		const player = mp.players.local;
 		return AdminService.serializePlayer(player);

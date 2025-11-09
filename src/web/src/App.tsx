@@ -14,7 +14,7 @@ function App() {
 	useEffect(() => {
 		const intervalId = setInterval(async () => {
 			try {
-				const player = await myRpc.callClient("admin:player:get");
+				const player = await myRpc.callClient("client:admin:player:get");
 				updatePlayer(player);
 			} catch (err) {
 				console.warn("Failed to fetch player:", err);

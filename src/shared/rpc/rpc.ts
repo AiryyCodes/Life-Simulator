@@ -1,25 +1,23 @@
 import { ENV } from "../env";
 import rpc, { Player } from "rage-rpc";
+import { RPCHandlers } from "./handlers";
 
-export function RPCHandler(name: string): MethodDecorator {
-	return (target, _key, descriptor) => {
-		if (!descriptor || !descriptor.value || typeof descriptor.value !== "function") {
-			throw new Error(`@RPCHandler can only be applied to methods`);
+export function RPCHandler<K extends keyof RPCHandlers>(name: K) {
+	return <T>(target: T, _key: string | symbol, descriptor: TypedPropertyDescriptor<RPCHandlers[K]>) => {
+		const originalMethod = descriptor?.value;
+		if (typeof originalMethod !== "function") {
+			throw new Error("@RPCHandler can only be applied to methods");
 		}
 
-		const originalMethod = descriptor.value as (...args: any[]) => any;
-
-		// Register the method after service is initialized
+		// Register the method
 		setTimeout(() => {
-			myRpc.register(name, (...args: any[]) => {
-				return originalMethod.apply(target, args);
-			});
+			myRpc.register(name, (...args: any[]) => (originalMethod as (...args: any[]) => ReturnType<RPCHandlers[K]>).apply(target, args));
 		}, 0);
 	};
 }
 
 class RPC {
-	register(name: string, callback: (...args: any[]) => void) {
+	register(name: keyof RPCHandlers, callback: (...args: any[]) => void) {
 		rpc.register(name, (data: any[], info) => {
 			if (ENV === "server") {
 				return Array.isArray(data) ? callback(info, ...data) : callback(info, data);
@@ -33,14 +31,14 @@ class RPC {
 		rpc.unregister(name);
 	}
 
-	async callServer(name: string, args?: any) {
+	async callServer(name: keyof RPCHandlers, args?: any) {
 		const response = await rpc.callServer(name, args);
 
 		return response?.err ? Promise.reject(response.err) : response;
 	}
 
-	async callClient(name: string, args?: any): Promise<any>;
-	async callClient(player: Player, name: string, args?: any): Promise<any>;
+	async callClient(name: keyof RPCHandlers, args?: any): Promise<any>;
+	async callClient(player: Player, name: keyof RPCHandlers, args?: any): Promise<any>;
 
 	async callClient(arg1: any, arg2?: any, arg3?: any): Promise<any> {
 		let response;
@@ -59,8 +57,8 @@ class RPC {
 		return response?.err ? Promise.reject(response.err) : response;
 	}
 
-	async callBrowsers(name: string, args?: any): Promise<any>;
-	async callBrowsers(player: Player, name: string, args?: any): Promise<any>;
+	async callBrowsers(name: keyof RPCHandlers, args?: any): Promise<any>;
+	async callBrowsers(player: Player, name: keyof RPCHandlers, args?: any): Promise<any>;
 
 	async callBrowsers(arg1: any, arg2?: any, arg3?: any): Promise<any> {
 		let response;

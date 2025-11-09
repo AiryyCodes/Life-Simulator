@@ -32,7 +32,7 @@ export default function UserPage() {
 				<Label label="Actions" />
 				<div className="flex gap-4">
 					<ActionCard label="Heal Yourself" icon={<HeartIcon className="size-8" />}>
-						<Button startElement="Heal" className="justify-center" onClick={() => myRpc.callClient("admin:heal")} />
+						<Button startElement="Heal" className="justify-center" onClick={() => myRpc.callServer("server:admin:heal")} />
 					</ActionCard>
 				</div>
 			</div>

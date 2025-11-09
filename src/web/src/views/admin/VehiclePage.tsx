@@ -20,7 +20,7 @@ export default function VehiclePage() {
 	const [numberPlate, setNumberPlate] = useState("");
 
 	function spawnVehicle(vehicleModel: string): void {
-		myRpc.callClient("client:admin:vehicle:spawn", vehicleModel);
+		myRpc.callServer("server:admin:vehicle:spawn", vehicleModel);
 
 		setVehicleModel("");
 	}
@@ -28,7 +28,7 @@ export default function VehiclePage() {
 	function changeNumberPlate(numberPlate: string): void {
 		if (numberPlate.length > 8) return;
 
-		myRpc.callClient("client:vehicle:plate:change", numberPlate);
+		myRpc.callServer("server:vehicle:plate:change", numberPlate);
 
 		setNumberPlate("");
 	}
@@ -78,7 +78,11 @@ export default function VehiclePage() {
 					{vehicle && (
 						<div className="grid grid-cols-2 flex-wrap gap-4">
 							<ActionCard label="Repair Vehicle" icon={<WrenchScrewdriverIcon className="size-8" />}>
-								<Button startElement="Repair" className="justify-center" onClick={() => myRpc.callClient("admin:vehicle:repair")} />
+								<Button
+									startElement="Repair"
+									className="justify-center"
+									onClick={() => myRpc.callServer("server:admin:vehicle:repair")}
+								/>
 							</ActionCard>
 							<ActionCard label="Number Plate" icon={<WrenchScrewdriverIcon className="size-8" />}>
 								<form
