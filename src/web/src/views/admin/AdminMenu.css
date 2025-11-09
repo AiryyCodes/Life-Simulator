@@ -1,0 +1,17 @@
+.nav-button:hover {
+	background-color: var(--color-background);
+}
+
+.nav-button:focus {
+	outline: none;
+	background-color: var(--color-background);
+}
+
+.nav-button-selected:hover {
+	background-color: var(--color-primary-light);
+}
+
+.nav-button-selected:focus {
+	outline: none;
+	background-color: var(--color-primary-light);
+}
