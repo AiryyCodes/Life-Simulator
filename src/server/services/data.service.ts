@@ -14,7 +14,7 @@ export class DataService {
 	}
 
 	@EventHandler("serverShutdown")
-	onServerShutdown(): void {
+	onServerShutdown() {
 		prisma?.$disconnect();
 	}
 }

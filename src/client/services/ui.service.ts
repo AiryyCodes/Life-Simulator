@@ -12,6 +12,8 @@ export class UIService {
 		this.ui = mp.browsers.new("http://127.0.0.1:5173/");
 
 		mp.keys.bind(0x1b, false, () => {
+			if (!this.menuShown) return;
+
 			myRpc.callClient("ui:menu:hide");
 		});
 	}
@@ -19,6 +21,7 @@ export class UIService {
 	@RPCHandler("ui:menu:toggle")
 	onMenuToggle(menu: string) {
 		const browser = mp.browsers.at(0) || this.ui;
+
 		if (!this.menuShown) {
 			rpc.callBrowser(browser, "browser:page:show", menu);
 		} else {
@@ -50,7 +53,6 @@ export class UIService {
 	private setControls(status: boolean) {
 		mp.gui.cursor.visible = status;
 		mp.gui.cursor.show(status, status);
-		// mp.gui.chat.show(!status);
 		mp.game.ui.displayRadar(!status);
 
 		// Disable pause menu when menu is open

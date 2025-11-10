@@ -1,9 +1,9 @@
-import { WebService } from "@lib/service";
 import { useMainStore } from "@lib/store/main.store";
 import { RPCHandler } from "@shared/rpc/rpc";
+import { Service } from "@shared/service/service";
 import type { PlayerInfo } from "@shared/types/player";
 
-@WebService()
+@Service({ side: "web" })
 export class MainService {
 	@RPCHandler("browser:player:update")
 	onPlayerUpdate(player: PlayerInfo) {

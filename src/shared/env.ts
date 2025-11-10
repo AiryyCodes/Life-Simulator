@@ -1,4 +1,4 @@
-export type Environment = "server" | "client" | "shared";
+export type Environment = "server" | "client" | "web" | "shared";
 
 // Default to "shared" so that shared modules can import safely
 export let ENV: Environment = "shared";

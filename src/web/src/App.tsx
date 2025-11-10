@@ -1,8 +1,6 @@
 import { HashRouter } from "react-router";
 import AppRoutes from "./routes";
 
-import "@lib/services";
-
 import "./App.css";
 import { useEffect } from "react";
 import { useMainStore } from "@lib/store/main.store";

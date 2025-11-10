@@ -1,8 +1,8 @@
 import { navigate } from "@lib/navigation";
-import { WebService } from "@lib/service";
 import { RPCHandler } from "@shared/rpc/rpc";
+import { Service } from "@shared/service/service";
 
-@WebService()
+@Service({ side: "web" })
 export class UIService {
 	@RPCHandler("browser:page:show")
 	onOpen(page: string) {

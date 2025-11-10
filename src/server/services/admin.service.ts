@@ -1,4 +1,4 @@
-import { Command } from "@/decorators/command";
+import { Command } from "@/command/command";
 import myRpc, { RPCHandler } from "@shared/rpc/rpc";
 import { Service } from "@shared/service/service";
 import { RandomInRange } from "@shared/random";
@@ -7,7 +7,7 @@ import { RandomInRange } from "@shared/random";
 export class AdminService {
 	@Command("admin")
 	async onUIShow(player: PlayerMp) {
-		myRpc.callClient(player, "ui:menu:toggle", "admin");
+		myRpc.callClient(player, "ui:menu:show", "admin");
 	}
 
 	@RPCHandler("server:admin:heal")

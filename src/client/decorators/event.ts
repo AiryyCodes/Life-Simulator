@@ -1,9 +1,17 @@
-export function EventHandler(name: string) {
-	return function (target: any, _propertyKey: string, descriptor: PropertyDescriptor) {
-		const originalMethod = descriptor.value as (...args: any[]) => any;
+import { pendingEventHandlers } from "@shared/event/event";
 
-		mp.events.add(name, (...args) => {
-			originalMethod.apply(target, args);
+export function EventHandler<K extends keyof IClientEvents | (string & {})>(name: K) {
+	return function <T extends (...args: K extends keyof IClientEvents ? Parameters<IClientEvents[K]> : any[]) => void>(
+		target: any,
+		_propertyKey: string,
+		descriptor: TypedPropertyDescriptor<T>,
+	) {
+		const originalMethod = descriptor.value!;
+
+		pendingEventHandlers.push({
+			name: name,
+			target: target.constructor,
+			method: originalMethod,
 		});
 	};
 }

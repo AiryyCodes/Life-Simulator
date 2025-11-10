@@ -1,5 +1,8 @@
 declare global {
-	interface PlayerMp {}
+	interface PlayerMp {
+		noclip: boolean;
+		godmode: boolean;
+	}
 }
 
 export {};

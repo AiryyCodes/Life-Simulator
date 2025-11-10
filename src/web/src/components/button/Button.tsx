@@ -24,7 +24,7 @@ export default function Button({ startElement, endElement, className, onClick }:
 
 				onClick();
 
-				const player = await myRpc.callClient("admin:player:get");
+				const player = await myRpc.callClient("client:admin:player:get");
 				updatePlayer(player);
 			}}
 			className={cn("my-button flex flex-row justify-between transition-all bg-primary px-4 py-2 rounded-xl w-full", className)}

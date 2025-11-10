@@ -1,18 +1,16 @@
 import { ENV } from "../env";
 import rpc, { Player } from "rage-rpc";
-import { RPCHandlers } from "./handlers";
+import type { RPCHandlers } from "./handlers";
+import { pendingRpcHandlers } from "../service/service";
 
 export function RPCHandler<K extends keyof RPCHandlers>(name: K) {
 	return <T>(target: T, _key: string | symbol, descriptor: TypedPropertyDescriptor<RPCHandlers[K]>) => {
-		const originalMethod = descriptor?.value;
-		if (typeof originalMethod !== "function") {
-			throw new Error("@RPCHandler can only be applied to methods");
-		}
-
-		// Register the method
-		setTimeout(() => {
-			myRpc.register(name, (...args: any[]) => (originalMethod as (...args: any[]) => ReturnType<RPCHandlers[K]>).apply(target, args));
-		}, 0);
+		const originalMethod = descriptor?.value!;
+		pendingRpcHandlers.push({
+			name,
+			target: (target as any).constructor,
+			method: originalMethod,
+		});
 	};
 }
 

@@ -6,6 +6,10 @@
 	--color-background: hsl(222, 19%, 13%);
 	--color-background-light: hsl(222, 19%, 20%);
 	--color-background-lighter: hsl(222, 19%, 30%);
+	--color-background-lightest: hsl(222, 10%, 45%);
 	--color-background-dark: hsl(222, 19%, 12%);
 	--color-background-darker: hsl(222, 19%, 10%);
+
+	--color-green: hsl(136, 63%, 43%);
+	--color-red: hsl(360, 62%, 53%);
 }
