@@ -1,4 +1,4 @@
-import { VehicleInfo } from "./vehicle";
+import { VehicleInfo } from "@shared/types/vehicle";
 
 export type PlayerInfo = {
 	name: string;

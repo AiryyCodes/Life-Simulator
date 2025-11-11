@@ -1,11 +1,11 @@
-import { ENV } from "../env";
+import { ENV } from "@shared/env";
 import rpc, { Player } from "rage-rpc";
-import type { RPCHandlers } from "./handlers";
-import { pendingRpcHandlers } from "../service/service";
+import { pendingRpcHandlers, type RPCHandlers } from "@shared/rpc/handlers";
 
 export function RPCHandler<K extends keyof RPCHandlers>(name: K) {
 	return <T>(target: T, _key: string | symbol, descriptor: TypedPropertyDescriptor<RPCHandlers[K]>) => {
 		const originalMethod = descriptor?.value!;
+
 		pendingRpcHandlers.push({
 			name,
 			target: (target as any).constructor,

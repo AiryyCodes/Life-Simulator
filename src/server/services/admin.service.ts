@@ -2,6 +2,7 @@ import { Command } from "@/command/command";
 import myRpc, { RPCHandler } from "@shared/rpc/rpc";
 import { Service } from "@shared/service/service";
 import { RandomInRange } from "@shared/random";
+import type { RPCInfo } from "@/types/rpc";
 
 @Service({ side: "server" })
 export class AdminService {

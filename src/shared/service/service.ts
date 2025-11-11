@@ -1,19 +1,13 @@
 import "reflect-metadata";
-import { getEnvironment } from "../env";
-import type { RPCHandlers } from "../rpc/handlers";
-import myRpc from "../rpc/rpc";
+import { getEnvironment } from "@shared/env";
+import myRpc from "@shared/rpc/rpc";
+import { pendingRpcHandlers } from "@shared/rpc/handlers";
 
 type ServiceSide = "client" | "server" | "web" | "shared";
 
 interface ServiceOptions {
 	side?: ServiceSide;
 }
-
-export const pendingRpcHandlers: {
-	name: keyof RPCHandlers;
-	target: any;
-	method: Function;
-}[] = [];
 
 const services: Map<any, any> = new Map();
 const clientServices: Map<any, any> = new Map();

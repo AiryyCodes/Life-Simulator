@@ -1,4 +1,4 @@
-import { getEnvironmentServices } from "../service/service";
+import { getEnvironmentServices } from "@shared/service/service";
 
 export const pendingEventHandlers: {
 	name: string;

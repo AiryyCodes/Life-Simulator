@@ -1,5 +1,5 @@
-import type { PlayerInfo } from "@/types/player";
-import type { RPCInfo } from "@/types/rpc";
+import type { PlayerInfo } from "@shared/types/player";
+import type { RPCInfo } from "@shared/types/rpc";
 
 export type RPCHandlers = {
 	"ui:menu:toggle": (menu: string) => void;
@@ -24,4 +24,8 @@ export type RPCHandlers = {
 	"server:vehicle:plate:change": (info: RPCInfo, numberPlate: string) => void;
 };
 
-export type RPCEventHandlers = {};
+export const pendingRpcHandlers: {
+	name: keyof RPCHandlers;
+	target: any;
+	method: Function;
+}[] = [];

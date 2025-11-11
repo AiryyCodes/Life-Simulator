@@ -1,3 +1,4 @@
+import type { RPCInfo } from "@/types/rpc";
 import { RPCHandler } from "@shared/rpc/rpc";
 import { Service } from "@shared/service/service";
 

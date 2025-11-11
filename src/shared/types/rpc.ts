@@ -1,1 +1,5 @@
-export interface RPCInfo {}
+export interface RPCInfo {
+	environment: string;
+	id?: string;
+	player?: any;
+}
