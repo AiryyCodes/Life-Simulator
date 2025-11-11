@@ -10,7 +10,7 @@ export type RPCHandlers = {
 	"browser:page:close": () => void;
 	"browser:player:update": (player: PlayerInfo) => void;
 
-	"client:vehicle:model:validate": (modelName: string) => void;
+	"client:vehicle:model:validate": (modelName: string) => boolean;
 
 	"client:admin:player:get": () => PlayerInfo;
 	"client:admin:noclip:toggle": (state: boolean) => boolean;

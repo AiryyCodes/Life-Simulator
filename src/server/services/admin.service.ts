@@ -23,14 +23,10 @@ export class AdminService {
 	@RPCHandler("server:admin:vehicle:repair")
 	onVehicleRepair(info: RPCInfo) {
 		const player = info.player;
-		if (!player.vehicle) {
-			return;
-		}
+		if (!player) return;
 
 		const vehicle = player.vehicle;
-		if (!vehicle) {
-			return;
-		}
+		if (!vehicle) return;
 
 		vehicle.repair();
 
@@ -57,6 +53,7 @@ export class AdminService {
 	@RPCHandler("server:admin:vehicle:spawn")
 	async onVehicleSpawn(info: RPCInfo, modelName: string) {
 		const player = info.player;
+		if (!player) return;
 
 		const isValid = await myRpc.callClient(player, "client:vehicle:model:validate", modelName);
 		if (!isValid) {
