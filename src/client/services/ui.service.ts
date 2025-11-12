@@ -6,13 +6,18 @@ import rpc from "rage-rpc";
 export class UIService {
 	public ui: BrowserMp | null = null;
 
-	private menuShown = false;
+	public currentMenu: string | null = null;
+
+	public canExit(): boolean {
+		return this.currentMenu === null || this.currentMenu !== "auth";
+	}
 
 	onInit() {
 		this.ui = mp.browsers.new("http://127.0.0.1:5173/");
 
 		mp.keys.bind(0x1b, false, () => {
-			if (!this.menuShown) return;
+			if (!this.currentMenu) return;
+			if (this.currentMenu == "auth") return;
 
 			myRpc.callClient("ui:menu:hide");
 		});
@@ -22,32 +27,34 @@ export class UIService {
 	onMenuToggle(menu: string) {
 		const browser = mp.browsers.at(0) || this.ui;
 
-		if (!this.menuShown) {
-			rpc.callBrowser(browser, "browser:page:show", menu);
+		if (this.currentMenu === menu) {
+			// Close it
+			rpc.callBrowser(browser, "browser:page:close", menu);
+			this.currentMenu = null;
+			this.setControls(false);
 		} else {
-			rpc.callBrowser(browser, "browser:page:close");
+			// Show it (replace previous if any)
+			rpc.callBrowser(browser, "browser:page:show", menu);
+			this.currentMenu = menu;
+			this.setControls(true);
 		}
-		this.menuShown = !this.menuShown;
-
-		this.setControls(this.menuShown);
 	}
 
 	@RPCHandler("ui:menu:show")
 	onMenuShow(menu: string) {
 		const browser = mp.browsers.at(0) || this.ui;
 		rpc.callBrowser(browser, "browser:page:show", menu);
-		this.menuShown = true;
+		this.currentMenu = menu;
 
-		this.setControls(this.menuShown);
+		this.setControls(true);
 	}
 
 	@RPCHandler("ui:menu:hide")
 	onMenuHide() {
 		const browser = mp.browsers.at(0) || this.ui;
-		rpc.callBrowser(browser, "browser:page:close");
-		this.menuShown = false;
-
-		this.setControls(this.menuShown);
+		rpc.callBrowser(browser, "browser:page:close", this.currentMenu);
+		this.currentMenu = null;
+		this.setControls(false);
 	}
 
 	private setControls(status: boolean) {

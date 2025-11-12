@@ -4,6 +4,7 @@ import "./Button.css";
 import { cn } from "@lib/utils/cn";
 import myRpc from "@shared/rpc/rpc";
 import { useMainStore } from "@lib/store/main.store";
+import { ComponentProps } from "react";
 
 export type ButtonProps = {
 	startElement?: React.ReactNode;
@@ -12,7 +13,7 @@ export type ButtonProps = {
 	className?: string;
 
 	onClick?: () => void;
-};
+} & ComponentProps<"button">;
 
 export default function Button({ startElement, endElement, className, onClick }: ButtonProps) {
 	const updatePlayer = useMainStore((state) => state.updatePlayer);

@@ -1,4 +1,4 @@
-class Vector3 {
+export class Vector3 {
 	constructor(
 		public x: number,
 		public y: number,
@@ -6,18 +6,11 @@ class Vector3 {
 	) {}
 }
 
-export function cross(v1: Vector3, v2: Vector3) {
-	let vector = new Vector3(0, 0, 0);
-	vector.x = v1.x * v2.z - v1.z * v2.y;
-	vector.y = v1.z * v2.x - v1.x * v2.z;
-	vector.z = v1.x * v2.y - v1.y * v2.x;
-	return vector;
+export function cross(a: Vector3, b: Vector3): Vector3 {
+	return new Vector3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
 }
 
-export function normalize(vector: Vector3) {
-	const mag = Math.sqrt(vector.x * vector.x + vector.y * vector.y + vector.z * vector.z);
-	vector.x = vector.x / mag;
-	vector.y = vector.y / mag;
-	vector.z = vector.z / mag;
-	return vector;
+export function normalize(v: Vector3): Vector3 {
+	const len = Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+	return len > 0 ? new Vector3(v.x / len, v.y / len, v.z / len) : new Vector3(0, 0, 0);
 }

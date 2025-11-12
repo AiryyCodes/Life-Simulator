@@ -1,5 +1,5 @@
 import { EventHandler } from "@/decorators/event";
-import { Service } from "@shared/service/service";
+import { Service, ServiceManager } from "@shared/service/service";
 import rpc from "rage-rpc";
 import { UIService } from "./ui.service";
 import myRpc, { RPCHandler } from "@shared/rpc/rpc";
@@ -11,11 +11,14 @@ import { cross, normalize } from "@shared/math";
 export class AdminService {
 	constructor(private uiService: UIService) {}
 
-	private noclipCamera: CameraMp | null = null;
+	noclipCamera: CameraMp | null = null;
 
 	onInit() {
 		mp.keys.bind(0x73, false, () => {
-			console.log(myRpc.callClient("ui:menu:toggle", "admin"));
+			const uiService = ServiceManager.get(UIService);
+			if (!uiService.canExit()) return;
+
+			myRpc.callClient("ui:menu:toggle", "admin");
 		});
 	}
 
@@ -59,9 +62,16 @@ export class AdminService {
 			this.noclipCamera = mp.cameras.new("default", player.position, cameraRotation, 45);
 			this.noclipCamera.setActive(true);
 			mp.game.cam.renderScriptCams(true, false, 0, true, false, 0);
+
+			const camHandle = this.noclipCamera.handle;
+			mp.game.invoke("0x661B5C8654ADD825", camHandle, true); // SET_CAM_CONTROLS_MINI_MAP_HEADING
 		} else if (!state && this.noclipCamera) {
 			player.position = this.noclipCamera.getCoord();
 			player.setHeading(this.noclipCamera.getRot(2).z);
+
+			const camHandle = this.noclipCamera.handle;
+			mp.game.invoke("0x661B5C8654ADD825", camHandle, false); // Disable minimap cam control
+
 			this.noclipCamera.destroy();
 			this.noclipCamera = null;
 
@@ -83,53 +93,58 @@ export class AdminService {
 	onNoclipRender() {
 		if (!this.noclipCamera || mp.gui.cursor.visible) return;
 
-		const controlModifier = mp.keys.isDown(17);
-		const shiftModifier = mp.keys.isDown(16);
+		const ctrl = mp.keys.isDown(17); // Ctrl
+		const shift = mp.keys.isDown(16); // Shift
 
-		const rotation = this.noclipCamera.getRot(2);
+		const rot = this.noclipCamera.getRot(2); // YXZ (degrees)
+		const pos = this.noclipCamera.getCoord();
 
-		let speedMultiplier = 1;
+		// Read analog stick / mouse deltas
+		const lookX = mp.game.controls.getDisabledControlNormal(0, 220); // look right/left
+		const lookY = mp.game.controls.getDisabledControlNormal(0, 221); // look up/down
+		const moveX = mp.game.controls.getDisabledControlNormal(0, 218); // strafe
+		const moveY = mp.game.controls.getDisabledControlNormal(0, 219); // forward/back
 
-		if (shiftModifier) {
-			speedMultiplier = 3;
-		} else if (controlModifier) {
-			speedMultiplier = 0.5;
-		}
+		// Speed modifier
+		let speed = 0.3;
+		if (shift) speed = 1.0;
+		else if (ctrl) speed = 0.1;
 
-		const rightAxisX = mp.game.controls.getDisabledControlNormal(0, 220);
-		const rightAxisY = mp.game.controls.getDisabledControlNormal(0, 221);
-		const leftAxisX = mp.game.controls.getDisabledControlNormal(0, 218);
-		const leftAxisY = mp.game.controls.getDisabledControlNormal(0, 219);
+		// --- ROTATION ---
+		// Apply directly in degrees (no frameTime scaling)
+		const newPitch = Math.max(-89.0, Math.min(89.0, rot.x + lookY * -5.0));
+		const newYaw = (rot.z + lookX * -5.0) % 360.0;
+		this.noclipCamera.setRot(newPitch, 0.0, newYaw, 2);
 
-		const position = this.noclipCamera.getCoord();
-		const direction = this.noclipCamera.getDirection();
-		const vector = new mp.Vector3(0, 0, 0);
-
-		vector.x = direction.x * leftAxisY * speedMultiplier;
-		vector.y = direction.y * leftAxisY * speedMultiplier;
-		vector.z = direction.z * leftAxisY * speedMultiplier;
-
+		// --- DIRECTION VECTORS ---
+		const forward = this.noclipCamera.getDirection();
 		const up = new mp.Vector3(0, 0, 1);
-		const right = cross(normalize(direction), normalize(up));
+		const right = normalize(cross(up, forward));
 
-		right.x *= leftAxisX * 0.5;
-		right.y *= leftAxisX * 0.5;
-		right.z *= leftAxisX * 0.5;
+		// --- MOVEMENT ---
+		const move = new mp.Vector3(0, 0, 0);
+		move.x -= forward.x * moveY * speed;
+		move.y -= forward.y * moveY * speed;
+		move.z -= forward.z * moveY * speed;
 
-		let movement = 0.0;
-		if (mp.keys.isDown(69)) {
-			movement = 0.5;
-		}
+		move.x -= right.x * moveX * speed * 0.5;
+		move.y -= right.y * moveX * speed * 0.5;
+		move.z -= right.z * moveX * speed * 0.5;
 
-		if (mp.keys.isDown(81)) {
-			movement = -0.5;
-		}
+		if (mp.keys.isDown(69)) move.z += speed; // E
+		if (mp.keys.isDown(81)) move.z -= speed; // Q
 
+		this.noclipCamera.setCoord(pos.x + move.x, pos.y + move.y, pos.z + move.z);
+
+		// --- PLAYER ALIGNMENT (for minimap etc.) ---
 		const player = mp.players.local;
-		player.position = new mp.Vector3(position.x + vector.x + 1, position.y + vector.y + 1, position.z + vector.z + 1);
-		player.heading = direction.z;
-		this.noclipCamera.setCoord(position.x - vector.x + right.x, position.y - vector.y + right.y, position.z - vector.z + right.z + movement);
-		this.noclipCamera.setRot(rotation.x + rightAxisY * -5.0, 0.0, rotation.z + rightAxisX * -5.0, 2);
+		const camPos = this.noclipCamera.getCoord();
+		player.position = camPos;
+
+		// Get the camera’s forward vector again and compute true heading
+		const dir = this.noclipCamera.getDirection();
+		const heading = ((Math.atan2(dir.x, dir.y) * 180.0) / Math.PI + 360.0) % 360.0;
+		player.setHeading(-heading);
 	}
 
 	static serializePlayer(player: PlayerMp): PlayerInfo {

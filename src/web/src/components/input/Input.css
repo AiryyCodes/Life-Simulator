@@ -3,3 +3,7 @@ input:focus {
 
     border-color: var(--color-background-lighter);
 }
+
+input::placeholder {
+    color: var(--color-background-lightest)
+}

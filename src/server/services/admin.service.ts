@@ -85,4 +85,12 @@ export class AdminService {
 
 		return vehicle;
 	}
+
+	@Command("coords")
+	private async onCoords(player: PlayerMp) {
+		const rotation: Vector3 = await myRpc.callClient(player, "client:player:camera:rotation:get", "default");
+
+		console.log("Position:", player.position);
+		console.log("Rotation:", rotation);
+	}
 }
