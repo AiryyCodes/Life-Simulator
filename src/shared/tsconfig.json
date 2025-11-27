@@ -7,7 +7,11 @@
 			"@shared/*": [
 				"./*"
 			]
-		}
+		},
+		"types": [
+			"../../node_modules/@ragempcommunity/types-server",
+			"../../node_modules/@ragempcommunity/types-client",
+		]
 	},
 	"include": [
 		"./**/*.ts"

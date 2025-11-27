@@ -36,6 +36,31 @@ export function Service(options: ServiceOptions = {}): ClassDecorator {
 
 			const envServices = getEnvironmentServices();
 			envServices.set(target, instance);
+
+			if (side === "client") {
+				const intervals: number[] = [];
+				const renderHandlers: ((...args: any[]) => void)[] = [];
+				let running = true;
+
+				if (instance.__loops) {
+					for (const loop of instance.__loops) {
+						if (loop.interval === 0) {
+							const handler = () => {
+								if (!running) return;
+								loop.method.call(instance);
+							};
+							renderHandlers.push(handler);
+							mp.events.add("render", handler);
+						} else {
+							const id = setInterval(() => {
+								if (!running) return;
+								loop.method.call(instance);
+							}, loop.interval);
+							intervals.push(id);
+						}
+					}
+				}
+			}
 		}
 	};
 }
